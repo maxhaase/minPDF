@@ -46,7 +46,7 @@ them for you (you will be asked for your `sudo` password).
 ## Installation
 
 ```sh
-git clone https://github.com/maxhaase/minPDF/minPDF.git
+git clone https://github.com/maxhaase/minPDF.git
 cd minPDF
 
 chmod +x minpdf
