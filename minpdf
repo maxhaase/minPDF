@@ -240,35 +240,34 @@ main() {
     QUALITY=75
     OUTPUT_NAME=""
 
-    while getopts ":gq:o:h" opt; do
-        case "$opt" in
-            g) GRAYSCALE=1 ;;
-            q)
-                QUALITY="$OPTARG"
+        # Use GNU getopt so options may appear before, between, or after files.
+    if ! PARSED=$(getopt -o gq:o:h -l grayscale,quality:,output:,help \
+                      -n 'minpdf' -- "$@"); then
+        echo >&2
+        usage
+        exit 1
+    fi
+    eval set -- "$PARSED"
+
+    while true; do
+        case "$1" in
+            -g|--grayscale) GRAYSCALE=1; shift ;;
+            -q|--quality)
+                QUALITY="$2"
                 if ! [[ "$QUALITY" =~ ^[0-9]+$ ]] || (( QUALITY < 0 || QUALITY > 100 )); then
                     printf '\033[1;31m-q expects an integer between 0 and 100.\033[0m\n' >&2
                     echo
                     usage
                     exit 1
                 fi
+                shift 2
                 ;;
-            o) OUTPUT_NAME="$OPTARG" ;;
-            h) usage; exit 0 ;;
-            :)
-                printf '\033[1;31mOption -%s requires an argument.\033[0m\n' "$OPTARG" >&2
-                echo
-                usage
-                exit 1
-                ;;
-            \?)
-                printf '\033[1;31mInvalid option: -%s\033[0m\n' "$OPTARG" >&2
-                echo
-                usage
-                exit 1
-                ;;
+            -o|--output) OUTPUT_NAME="$2"; shift 2 ;;
+            -h|--help)   usage; exit 0 ;;
+            --)          shift; break ;;
+            *)           break ;;
         esac
     done
-    shift $((OPTIND - 1))
 
     if [ $# -eq 0 ]; then
         usage
