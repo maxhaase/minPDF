@@ -3,7 +3,6 @@ set -euo pipefail
 
 MINPDF_BIN="$(command -v minpdf 2>/dev/null || echo "/usr/bin/minpdf")"
 
-# Collect input files
 FILES=()
 if [ $# -gt 0 ]; then
     FILES=("$@")
@@ -21,21 +20,22 @@ BASE=$(basename "${FILES[0]}" .pdf)
 TS=$(date +%Y%m%d_%H%M%S)
 if [ ${#FILES[@]} -gt 1 ]; then DEFAULT_OUT="${BASE}_merged_${TS}.pdf"; else DEFAULT_OUT="${BASE}_${TS}.pdf"; fi
 
-# 1. Quality (Slider)
 QUALITY=$(zenity --scale --title="minPDF (1/3) - Quality" \
     --text="Select compression quality for ${#FILES[@]} file(s):" \
     --min-value=10 --max-value=90 --value=70 --step=10 2>/dev/null) || exit 0
 
-# 2. Filename (Pre-filled text box)
 OUT_NAME=$(zenity --entry --title="minPDF (2/3) - Output Filename" \
     --text="Enter output filename:" \
     --entry-text="$DEFAULT_OUT" 2>/dev/null) || exit 0
 
-# Resolve path
+# CRITICAL FIX: If the user leaves it blank, force the default timestamped name
+if [ -z "$OUT_NAME" ]; then
+    OUT_NAME="$DEFAULT_OUT"
+fi
+
 [[ "$OUT_NAME" != *.pdf ]] && OUT_NAME="${OUT_NAME}.pdf"
 [[ "$OUT_NAME" != /* ]] && OUTPUT_PATH="$DIR/$OUT_NAME" || OUTPUT_PATH="$OUT_NAME"
 
-# 3. Merge prompt (Only if multiple files)
 MERGE_VAL="FALSE"
 if [ ${#FILES[@]} -gt 1 ]; then
     if zenity --question --title="minPDF (3/3) - Merge" \
@@ -47,19 +47,16 @@ fi
 
 CREATED=()
 
-# Run Compression with Progress Bar
 if [ ${#FILES[@]} -gt 1 ] && [ "$MERGE_VAL" == "TRUE" ]; then
-    # Merge all files
     minpdf -q "$QUALITY" -o "$OUTPUT_PATH" "${FILES[@]}" 2>&1 | \
         zenity --progress --pulsate --title="minPDF" --text="Merging and compressing..." --no-cancel --auto-close 2>/dev/null
     
     if [ "${PIPESTATUS[0]}" -eq 0 ]; then
         CREATED=("$OUTPUT_PATH")
     else
-        zenity --error --text="Compression failed." 2>/dev/null; exit 1
+        zenity --error --text="Compression failed. Check Ghostscript." 2>/dev/null; exit 1
     fi
 else
-    # Process individually
     for i in "${!FILES[@]}"; do
         f="${FILES[$i]}"
         f_dir=$(dirname "$f"); f_base=$(basename "$f" .pdf)
@@ -77,7 +74,6 @@ else
     done
 fi
 
-# Success Dialog
 if [ ${#CREATED[@]} -gt 0 ] && [ -f "${CREATED[0]}" ]; then
     MSG="Success!\n\nCreated:\n"
     for c in "${CREATED[@]}"; do MSG+="- $(basename "$c")\n"; done
