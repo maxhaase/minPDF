@@ -1,0 +1,8 @@
+build/
+dist/
+*.deb
+*.rpm
+*.tar.gz
+*.zip
+*.exe
+*.log

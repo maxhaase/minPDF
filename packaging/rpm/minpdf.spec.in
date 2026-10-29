@@ -1,0 +1,44 @@
+Name:           minpdf
+Version:        @VERSION@
+Release:        1%{?dist}
+Summary:        Multi-use utility for PDF files
+License:        MIT
+URL:            https://github.com/maxhaase/minPDF
+Source0:        minpdf-%{version}.tar.gz
+BuildArch:      noarch
+Requires:       ghostscript
+Requires:       poppler-utils
+Requires:       zenity
+Requires:       kdialog
+
+%description
+Compress and merge PDF files while preserving color and quality.
+Integrates with GNOME Files (Nautilus) and KDE Dolphin through
+right-click context menus.
+
+%prep
+%setup -q
+
+%install
+mkdir -p %{buildroot}%{_bindir}
+install -m 755 minpdf     %{buildroot}%{_bindir}/minpdf
+install -m 755 minpdf-gui %{buildroot}%{_bindir}/minpdf-gui
+
+mkdir -p %{buildroot}%{_datadir}/nautilus/scripts
+ln -sf %{_bindir}/minpdf-gui %{buildroot}%{_datadir}/nautilus/scripts/minPDF-Compress
+
+mkdir -p %{buildroot}%{_datadir}/kio/servicemenus
+install -m 644 minpdf.desktop %{buildroot}%{_datadir}/kio/servicemenus/minpdf.desktop
+
+%post
+if command -v update-desktop-database >/dev/null; then
+    update-desktop-database -q || true
+fi
+
+%files
+%{_bindir}/minpdf
+%{_bindir}/minpdf-gui
+%{_datadir}/nautilus/scripts/minPDF-Compress
+%{_datadir}/kio/servicemenus/minpdf.desktop
+
+%changelog

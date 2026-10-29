@@ -1,0 +1,13 @@
+Package: minpdf
+Version: @VERSION@
+Section: utils
+Priority: optional
+Architecture: all
+Depends: ghostscript, poppler-utils, zenity | kdialog, python3-nautilus, python3-nautilus, python3-nautilus, python3-nautilus, python3-nautilus, python3-nautilus, python3-nautilus, python3-nautilus
+Recommends: nautilus | dolphin
+Maintainer: Max Haase <maxhaase@gmail.com>
+Homepage: https://github.com/maxhaase/minPDF
+Description: Multi-use utility for PDF files
+ Compress and merge PDF files while preserving color and quality.
+ Integrates with GNOME Files (Nautilus) and KDE Dolphin through
+ right-click context menus.

@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Service
+MimeType=application/pdf;
+Actions=compress;
+X-KDE-ServiceTypes=KonqPopupMenu/Plugin
+X-KDE-Priority=TopLevel
+
+[Desktop Action compress]
+Name=Compress with minPDF
+Icon=application-pdf
+Exec=/usr/bin/minpdf-gui %F
