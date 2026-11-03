@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# Master build script. Usage: ./build.sh [deb|rpm|win|all]
 set -euo pipefail
 cd "$(dirname "$0")"
 TARGET="${1:-all}"
